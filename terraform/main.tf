@@ -11,6 +11,7 @@ terraform {
 
 provider "aws" {
   region = var.region
+  profile = "new-account"
 }
 
 resource "aws_instance" "nginx" {
