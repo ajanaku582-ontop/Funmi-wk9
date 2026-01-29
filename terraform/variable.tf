@@ -20,7 +20,7 @@ variable "key_name" {
 }
 
 
-variable "security_group_id" {
-  description = "Security group allowing SSH & HTTP"
-  type        = string
-}
+# variable "security_group_id" {
+#   description = "Security group allowing SSH & HTTP"
+#   type        = string
+# }
