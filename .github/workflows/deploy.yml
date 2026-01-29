@@ -1,13 +1,13 @@
-name: Ansible Deployment (Java + Nginx)
+name: Ansible Deployment (Ubuntu Runner)
 
 on:
   workflow_dispatch:
     inputs:
       java_ip:
-        description: "Public IP of Java node"
+        description: "Public IP of Java EC2"
         required: true
       nginx_ip:
-        description: "Public IP of Nginx node"
+        description: "Public IP of Nginx EC2"
         required: true
 
 jobs:
@@ -15,30 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Create SSH private key
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/ec2-key_name.pem
-          chmod 400 ~/.ssh/ec2-key_name.pem
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/ec2.pem
+          chmod 400 ~/.ssh/ec2.pem
 
-      - name: SSH to Ansible node and run Ansible
+      - name: Create inventory
         run: |
-          ssh -o StrictHostKeyChecking=no \
-              -i ~/.ssh/ec2-key_name.pem \
-              ec2-user@${{ github.event.inputs.ansible_ip }} << 'EOF'
-
-          set -e
-
-          mkdir -p ~/ansible
-          cd ~/ansible
-
-          # -----------------------------
-          # Create inventory file
-          # -----------------------------
-          cat << 'INVENTORY' > dev.ini
+          cat <<EOF > inventory.ini
           [java]
           ${{ github.event.inputs.java_ip }}
 
@@ -46,43 +39,13 @@ jobs:
           ${{ github.event.inputs.nginx_ip }}
 
           [all:vars]
-          ansible_ssh_private_key_file=~/.ssh/ec2-key_name.pe
+          ansible_user=ec2-user
+          ansible_ssh_private_key_file=~/.ssh/ec2.pem
           ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-          INVENTORY
-
-          # -----------------------------
-          # Create Ansible playbook
-          # -----------------------------
-          cat << 'PLAYBOOK' > deploy.yml
-          ---
-          - name: Install Java on Java Node
-            hosts: java
-            become: true
-            tasks:
-              - name: Install Java 17 (Amazon Corretto)
-                yum:
-                  name: java-17-amazon-corretto
-                  state: present
-
-          - name: Install and start Nginx on Nginx Node
-            hosts: nginx
-            become: true
-            tasks:
-              - name: Install Nginx
-                yum:
-                  name: nginx
-                  state: present
-
-              - name: Start and enable Nginx
-                service:
-                  name: nginx
-                  state: started
-                  enabled: true
-          PLAYBOOK
-
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/ec2-key_name.pem
-          chmod 400 ~/.ssh/ec2-key_name.pem
-
-          ansible-playbook -i dev.ini deploy.yml
-
           EOF
+
+      - name: Test connectivity
+        run: ansible all -i inventory.ini -m ping
+
+      - name: Run playbook
+        run: ansible-playbook -i dev.ini playbook.yml
