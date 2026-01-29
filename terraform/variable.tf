@@ -19,6 +19,7 @@ variable "key_name" {
   type        = string
 }
 
+
 variable "security_group_id" {
   description = "Security group allowing SSH & HTTP"
   type        = string
