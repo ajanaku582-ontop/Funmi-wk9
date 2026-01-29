@@ -69,15 +69,21 @@ jobs:
       run: terraform destroy -auto-approve
 
     - name: Capture Terraform Outputs
-      id: tfoutputs
+      if: github.event.inputs.tf_action == 'apply'
+      working-directory: terraform
       run: |
-        echo "NGINX_IP=$(terraform output -raw nginx_public_ip)" >> $GITHUB_ENV
-        echo "JAVA_IP=$(terraform output -raw java_public_ip)" >> $GITHUB_ENV
-
+          echo "JAVA_IP=$(terraform output -raw java_node_ip)" >> $GITHUB_ENV
+          echo "NGINX_IP=$(terraform output -raw nginx_node_ip)" >> $GITHUB_ENV
+          # echo "ANSIBLE_IP=$(terraform output -raw ansible_node_ip)" >> $GITHUB_ENV
+    - name: Show Outputs
+      if: github.event.inputs.tf_action == 'apply'
+      run: |
+             echo "Java Node IP: ${{ env.JAVA_IP }}"
+             echo "Nginx Node IP: ${{ env.NGINX_IP }}"
     - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2.pem
+        echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/ec2.pem
         chmod 400 ~/.ssh/ec2.pem
 
     - name: Install Ansible
