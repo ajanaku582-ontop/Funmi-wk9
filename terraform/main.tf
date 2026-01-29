@@ -1,16 +1,5 @@
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
 provider "aws" {
-  region = var.region
+  region = "us-east-2"
 }
 
 # Use default VPC
@@ -52,24 +41,38 @@ resource "aws_security_group" "server_sg" {
   }
 }
 
-resource "aws_instance" "nginx" {
+# # Ansible Node
+# resource "aws_instance" "ansible" {
+#   ami                    = var.ami
+#   instance_type          = "c7i-flex.large"
+#   key_name               = var.key_name
+#   vpc_security_group_ids = [aws_security_group.server_sg.id]
+
+#   tags = {
+#     Name = "Ansible-Node"
+#   }
+# }
+
+# Java Node
+resource "aws_instance" "java" {
   ami                    = var.ami
-  instance_type          = var.instance_type
+  instance_type          = "c7i-flex.large"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.server_sg.id]
 
   tags = {
-    Name = "nginx-node"
+    Name = "Java-Node"
   }
 }
 
-resource "aws_instance" "java" {
+# Nginx Node
+resource "aws_instance" "nginx" {
   ami                    = var.ami
-  instance_type          = var.instance_type
+  instance_type          = "c7i-flex.large"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.server_sg.id]
 
   tags = {
-    Name = "java-node"
+    Name = "Nginx-Node"
   }
 }
