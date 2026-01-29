@@ -20,7 +20,7 @@ resource "aws_instance" "nginx" {
   vpc_security_group_ids = [var.security_group_id]
 
   tags = {
-    Name = "nginx-server"
+    Name = "nginx-node"
   }
 }
 
@@ -31,6 +31,6 @@ resource "aws_instance" "java" {
   vpc_security_group_ids = [var.security_group_id]
 
   tags = {
-    Name = "java-server"
+    Name = "java-node"
   }
 }
