@@ -45,7 +45,7 @@ jobs:
           EOF
 
       - name: Test connectivity
-        run: ansible all -i inventory.ini -m ping
+        run: ansible all -i dev.ini -m ping
 
       - name: Run playbook
         run: ansible-playbook -i dev.ini playbook.yml
