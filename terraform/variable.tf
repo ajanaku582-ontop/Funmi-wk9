@@ -4,11 +4,11 @@ variable "region" {
 }
 
 variable "ami" {
-  description = "Amazon Linux 2023 AMI"
+  default = "ami-03ea746da1a2e36e7"
   type        = string
 }
 
-variable "instance_type" {
+variable "instance_type" {  
   description = "EC2 instance type"
   type        = string
   default     = "c7i-flex.large"
