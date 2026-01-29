@@ -74,7 +74,7 @@ jobs:
       run: |
           echo "JAVA_IP=$(terraform output -raw java_node_ip)" >> $GITHUB_ENV
           echo "NGINX_IP=$(terraform output -raw nginx_node_ip)" >> $GITHUB_ENV
-          # echo "ANSIBLE_IP=$(terraform output -raw ansible_node_ip)" >> $GITHUB_ENV
+          
     - name: Show Outputs
       if: github.event.inputs.tf_action == 'apply'
       run: |
@@ -103,7 +103,7 @@ jobs:
 
     - name: Run Ansible Playbook
       run: |
-        ansible-playbook -i inventory.ini playbook.yml
+        ansible-playbook -i dev.ini playbook.yml
 
     # OPTIONAL – uncomment if you want auto destroy
     # - name: Terraform Destroy
