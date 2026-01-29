@@ -3,9 +3,6 @@ name: Ansible Deployment (Java + Nginx)
 on:
   workflow_dispatch:
     inputs:
-      ansible_ip:
-        description: "Public IP of Ansible node"
-        required: true
       java_ip:
         description: "Public IP of Java node"
         required: true
